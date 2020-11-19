@@ -4,29 +4,36 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 import sys
 import time
+from datetime import datetime
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
-userID = "사용자ID"
-userPW = "사용자비번"
+userID = "아이디"
+userPW = "비밀번호"
 userNum = "생년월일"
 
 # 티켓 번호
-groupCode = "20009889"
+groupCode = "20010077"
 
 # 티켓상세URL
 userSearch = "http://ticket.interpark.com/Ticket/Goods/GoodsInfo.asp?GroupCode=" + groupCode
 
 # 날짜
-userDate = "20201126"
+userDate = "20201128"
 
 # 회차 번호 1: 첫번재, 2: 두번째
 userTime = "1"
 
-
+# 반복 횟수
 max_loop_count = 10
+
+# 스케줄 여부
+set_schedule = True
+
+# 스케줄 시간
+schedule_time = datetime(2020, 11, 20, 14, 0, 0)
 
 now = time.localtime()
 
@@ -372,9 +379,31 @@ def select_seat_internal():
     return succeeded
 
 
+def interval_time():
+    n = datetime.now()
+
+    print("interval start - now({}), schedule({})".format(n, schedule_time))
+
+    interval = schedule_time - n
+    interval_seconds = interval.seconds + 1
+
+    print("inerval time - {}".format(interval_seconds))
+
+    if (interval.days < 0):
+        print("previous time can't interval")
+    else:
+        time.sleep(interval_seconds)
+
+    print("interval end - {}".format(datetime.now()))
+
+
 if __name__ == '__main__':
     log_in()
     move_to_ticket_page()
+
+    if (set_schedule):
+        interval_time()
+
     open_reservation_page()
     select_date_and_time()
     seat_result = select_seat()
@@ -384,4 +413,4 @@ if __name__ == '__main__':
     if (seat_result):
         selct_ticket_price()
         fill_order()
-        # pay_for_ticket()
+        pay_for_ticket()
